@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Lista de Tarefas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .preview-container {
+      font-family: 'JetBrains Mono', monospace;
+      white-space: pre;
+      background-color: #e9ecef;
+      padding: 1rem;
+      border-radius: 0.25rem;
+      line-height: 1.5;
+      font-size: 0.9rem;
+    }
+    
+    .task-item {
+      cursor: grab;
+    }
+    
+    .task-item:active {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container my-5">
+  <h1 class="mb-4">Gerador de Lista de Tarefas</h1>
+  
+  <div class="row">
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label for="task-date" class="form-label">Data das Tarefas</label>
+        <input type="date" class="form-control" id="task-date">
+      </div>
+      
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" id="new-task" placeholder="Adicionar nova tarefa">
+        <button class="btn btn-primary" type="button" id="add-task-btn">Adicionar</button>
+      </div>
+      
+      <ul class="list-group" id="task-list">
+      </ul>
+    </div>
+    
+    <div class="col-md-6">
+      <h3 class="mb-3">Pré-visualização do Arquivo TXT</h3>
+      <div class="preview-container" id="preview"></div>
+      <button class="btn btn-success mt-3" id="generate-txt-btn">Gerar Arquivo TXT</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const taskDate = document.getElementById('task-date');
+    const newTaskInput = document.getElementById('new-task');
+    const addTaskBtn = document.getElementById('add-task-btn');
+    const taskList = document.getElementById('task-list');
+    const preview = document.getElementById('preview');
+    const generateTxtBtn = document.getElementById('generate-txt-btn');
+    
+    // Set default date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    taskDate.value = tomorrow.toISOString().split('T')[0];
+    
+    let tasks = [];
+    
+    const updatePreview = () => {
+      const date = taskDate.value;
+      let previewContent = `- - - - - - - - - - - - - - - - - - - - - -\n\n`;
+      previewContent += `${date} TASKS\n\n`;
+      tasks.forEach(task => {
+        previewContent += `[ ] ${task}\n`;
+      });
+      previewContent += `\n- - - - - - - - - - - - - - - - - - - - - -`;
+      preview.textContent = previewContent;
+    };
+    
+    const renderTasks = () => {
+      taskList.innerHTML = '';
+      tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center task-item';
+        li.dataset.id = index;
+        li.textContent = task;
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-danger btn-sm';
+        deleteBtn.textContent = 'Excluir';
+        deleteBtn.onclick = () => {
+          tasks.splice(index, 1);
+          renderTasks();
+          updatePreview();
+        };
+        
+        li.appendChild(deleteBtn);
+        taskList.appendChild(li);
+      });
+    };
+    
+    addTaskBtn.addEventListener('click', () => {
+      const taskText = newTaskInput.value.trim();
+      if (taskText !== '') {
+        tasks.push(taskText);
+        newTaskInput.value = '';
+        renderTasks();
+        updatePreview();
+      }
+    });
+    
+    newTaskInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addTaskBtn.click();
+      }
+    });
+    
+    taskDate.addEventListener('change', updatePreview);
+    
+    generateTxtBtn.addEventListener('click', () => {
+      const text = preview.textContent;
+      const blob = new Blob([text], {type: 'text/plain'});
+      const anchor = document.createElement('a');
+      anchor.download = `${taskDate.value}-tasks.txt`;
+      anchor.href = window.URL.createObjectURL(blob);
+      anchor.target = '_blank';
+      anchor.style.display = 'none';
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    });
+    
+    // Initialize SortableJS
+    new Sortable(taskList, {
+      animation: 150,
+      onEnd: () => {
+        const updatedTasks = [];
+        const taskItems = taskList.querySelectorAll('.list-group-item');
+        taskItems.forEach(item => {
+          updatedTasks.push(item.textContent.replace('Excluir', '').trim());
+        });
+        tasks = updatedTasks;
+        renderTasks();
+        updatePreview();
+      }
+    });
+    
+    // Initial render
+    updatePreview();
+  });
+</script>
+
+</body>
+</html>
