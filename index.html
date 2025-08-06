@@ -144,7 +144,8 @@
       const text = preview.textContent;
       const blob = new Blob([text], {type: 'text/plain'});
       const anchor = document.createElement('a');
-      anchor.download = `${taskDate.value}-tasks.txt`;
+      // TODO - testar
+      anchor.download = `${taskDate.value.replace(/^W/, "")}.txt`;
       anchor.href = window.URL.createObjectURL(blob);
       anchor.target = '_blank';
       anchor.style.display = 'none';
