@@ -63,7 +63,7 @@
     <div class="col-md-6">
       <h3 class="mb-3 fs-3 text-body-secondary">Pré-visualização do Arquivo TXT</h3>
       <div class="preview-container" id="preview"></div>
-      <button class="btn btn-success mt-3" id="generate-txt-btn">Gerar Arquivo TXT</button>
+      <button class="btn btn-success mt-3" id="generate-txt-btn" accesskey="G" title="Atalho: letra G"><small class="border py-1 px-2 rounded border-success-subtle me-2">G</small>Gerar Arquivo TXT</button>
     </div>
   </div>
 </div>
@@ -73,6 +73,10 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <script>
+  function formatCase(string) {
+    return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
+  }
+  
   document.addEventListener('DOMContentLoaded', () => {
     const taskDate = document.getElementById('task-date');
     const newTaskInput = document.getElementById('new-task');
@@ -93,7 +97,7 @@
       let previewContent = `- - - - - - - - - - - - - - - - - - - - - -\n\n`;
       previewContent += `${date} TASKS\n\n`;
       tasks.forEach(task => {
-        previewContent += `[ ] ${task}\n`;
+        previewContent += `[ ] ${formatCase(task)}\n`;
       });
       previewContent += `\n- - - - - - - - - - - - - - - - - - - - - -`;
       preview.textContent = previewContent;
@@ -144,8 +148,7 @@
       const text = preview.textContent;
       const blob = new Blob([text], {type: 'text/plain'});
       const anchor = document.createElement('a');
-      // TODO - testar
-      anchor.download = `${taskDate.value.replace(/^W/, "")}.txt`;
+      anchor.download = `${taskDate.value.replace(/\W/g, "")}.txt`;
       anchor.href = window.URL.createObjectURL(blob);
       anchor.target = '_blank';
       anchor.style.display = 'none';
