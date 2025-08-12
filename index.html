@@ -94,7 +94,7 @@
     // Set default date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    taskDate.value = tomorrow.toISOString().split('T')[0];
+    taskDate.value = `${tomorrow.getFullYear()}-${('0' + (tomorrow.getMonth() + 1)).slice(-2)}-${('0' + tomorrow.getDate()).slice(-2)}`;
     
     let tasks = [];
     
