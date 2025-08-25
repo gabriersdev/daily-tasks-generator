@@ -100,12 +100,12 @@
     
     const updatePreview = () => {
       const date = taskDate.value;
-      let previewContent = `- - - - - - - - - - - - - - - - - - - - - -\n\n`;
+      let previewContent = ``;
       previewContent += `${date} TASKS\n\n`;
       tasks.forEach(task => {
         previewContent += `[ ] ${formatCase(task)}\n`;
       });
-      previewContent += `\n- - - - - - - - - - - - - - - - - - - - - -`;
+      previewContent += ``;
       preview.textContent = previewContent;
     };
     
