@@ -42,8 +42,6 @@ const app = createApp({
   },
   
   methods: {
-    // TODO - essa captura do input e/ou as formas de dar foco não funcionam
-    newTaskInput: document.querySelector('#new-task'),
     showToast(message, isRecover = false) {
       const toastContainer = document.getElementById('toast-container');
       const toastTemplate = document.getElementById('toast-template');
@@ -67,11 +65,12 @@ const app = createApp({
       });
     },
     
-    // TODO - essa captura do input e/ou as formas de dar foco não funcionam
     focusInputNewTask() {
-      if (this.newTaskInput) setTimeout(() => {
-        this.newTaskInput.focus();
-      }, 250);
+      if (this.$refs.newTaskInput) {
+        setTimeout(() => {
+          this.$refs.newTaskInput.focus();
+        }, 250);
+      }
     },
     
     autoSave() {

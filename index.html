@@ -46,6 +46,7 @@
               type="text"
               class="form-control"
               id="new-task"
+              ref="newTaskInput"
               placeholder="Descrição da nova tarefa"
               v-model="newTaskText"
               autofocus
@@ -70,7 +71,7 @@
               <span style="text-overflow: ellipsis; max-width: fit-content; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;">
                 {{ task }}
               </span>
-            <div class="d-flex align-items-center justify-content-center gap-1 flex-wrap">
+            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
               <button class="btn btn-warning btn-sm" @click="editTask(index)">Editar</button>
               <button class="btn btn-danger btn-sm" @click="removeTask(index)">Excluir</button>
             </div>
