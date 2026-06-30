@@ -1,4 +1,4 @@
-const { createApp } = Vue;
+const {createApp} = Vue;
 
 const app = createApp({
   data() {
@@ -12,7 +12,9 @@ const app = createApp({
       tasks: [],
       history: [],
       historyModal: null,
-      sortable: null
+      sortable: null,
+      isRestoring: false,
+      lastAutosaveStr: ''
     };
   },
   
@@ -24,10 +26,92 @@ const app = createApp({
       });
       content += ``;
       return content;
+    },
+  },
+  
+  watch: {
+    tasks: {
+      handler() {
+        this.autoSave();
+      },
+      deep: true
+    },
+    taskDate() {
+      this.autoSave();
     }
   },
   
   methods: {
+    // TODO - essa captura do input e/ou as formas de dar foco não funcionam
+    newTaskInput: document.querySelector('#new-task'),
+    showToast(message, isRecover = false) {
+      const toastContainer = document.getElementById('toast-container');
+      const toastTemplate = document.getElementById('toast-template');
+      const toastEl = toastTemplate.content.cloneNode(true).firstElementChild;
+      const toastBody = toastEl.querySelector('.toast-body');
+      const indicator = toastEl.querySelector('.toast-indicator');
+      
+      if (isRecover) {
+        indicator.classList.remove('bg-success');
+        indicator.classList.add('bg-info');
+      }
+      
+      toastBody.textContent = message;
+      toastContainer.appendChild(toastEl);
+      
+      const toast = new bootstrap.Toast(toastEl, {delay: 3000});
+      toast.show();
+      
+      toastEl.addEventListener('hidden.bs.toast', () => {
+        toastEl.remove();
+      });
+    },
+    
+    // TODO - essa captura do input e/ou as formas de dar foco não funcionam
+    focusInputNewTask() {
+      if (this.newTaskInput) setTimeout(() => {
+        this.newTaskInput.focus();
+      }, 250);
+    },
+    
+    autoSave() {
+      if (this.isRestoring) return;
+      
+      const data = {
+        date: this.taskDate,
+        tasks: this.tasks
+      };
+      
+      const currentStr = JSON.stringify(data);
+      if (currentStr === this.lastAutosaveStr) return;
+      
+      this.lastAutosaveStr = currentStr;
+      localStorage.setItem('daily_tasks_autosave', currentStr);
+      this.showToast('Alterações salvas automaticamente.');
+    },
+    
+    loadAutoSave() {
+      const saved = localStorage.getItem('daily_tasks_autosave');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.tasks && data.tasks.length > 0) {
+            this.isRestoring = true;
+            this.taskDate = data.date || this.taskDate;
+            this.tasks = data.tasks;
+            this.lastAutosaveStr = saved;
+            
+            this.$nextTick(() => {
+              this.isRestoring = false;
+              this.showToast('Dados recuperados do último salvamento automático.', true);
+            });
+          }
+        } catch (e) {
+          console.error('Erro ao recuperar autosave', e);
+        }
+      }
+    },
+    
     formatCase(string) {
       if (!string) return '';
       return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
@@ -39,10 +123,22 @@ const app = createApp({
         this.tasks.push(taskText);
         this.newTaskText = '';
       }
+      this.focusInputNewTask();
     },
     
     removeTask(index) {
       this.tasks.splice(index, 1);
+    },
+    
+    editTask(index) {
+      const taskFind = this.tasks.find((_, i) => i === index);
+      if (taskFind) this.newTaskText = taskFind;
+      this.removeTask(index);
+      this.focusInputNewTask();
+    },
+    
+    removeAllTasksInCurrentEdition() {
+      while (this.tasks.length > 0) this.tasks.pop();
     },
     
     generateTxt() {
@@ -165,6 +261,7 @@ const app = createApp({
   },
   
   mounted() {
+    this.loadAutoSave();
     this.loadHistory();
     this.historyModal = new bootstrap.Modal(document.getElementById('historyModal'));
     

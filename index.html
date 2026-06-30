@@ -6,8 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gerador de Lista de Tarefas</title>
   
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,26 +31,55 @@
       <div class="col-md-6">
         <div class="mb-3">
           <label for="task-date" class="form-label">Data de execução</label>
-          <input type="date" class="form-control" id="task-date" v-model="taskDate">
+          <input
+            type="date"
+            class="form-control"
+            id="task-date"
+            v-model="taskDate"
+            autocomplete="off"
+          >
         </div>
         
         <form @submit.prevent="addTask" class="input-group mb-3 d-flex flex-wrap">
           <label for="new-task" style="flex: 1">
-            <input type="text" class="form-control" id="new-task" placeholder="Descrição da nova tarefa"
-                   v-model="newTaskText" autofocus required>
+            <input
+              type="text"
+              class="form-control"
+              id="new-task"
+              placeholder="Descrição da nova tarefa"
+              v-model="newTaskText"
+              autofocus
+              required
+              autocomplete="off"
+            >
           </label>
-          <button class="btn btn-primary ms-2 rounded" type="submit">Adicionar</button>
+          <button
+            class="btn btn-primary ms-2 rounded"
+            type="submit"
+            title="Atalho: Enter a partir do preenchimento do input"
+            data-tooltip="true"
+            data-bs-placement="top"
+          >
+            Adicionar <kbd class="text-small">Enter</kbd>
+          </button>
         </form>
         
         <ul class="list-group" id="task-list">
           <li v-for="(task, index) in tasks" :key="index"
               class="list-group-item d-flex gap-1 justify-content-between align-items-center task-item">
-              <span
-                style="text-overflow: ellipsis; max-width: fit-content; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;">{{
-                  task }}</span>
-            <button class="btn btn-danger btn-sm" @click="removeTask(index)">Excluir</button>
+              <span style="text-overflow: ellipsis; max-width: fit-content; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;">
+                {{ task }}
+              </span>
+            <div class="d-flex align-items-center justify-content-center gap-1 flex-wrap">
+              <button class="btn btn-warning btn-sm" @click="editTask(index)">Editar</button>
+              <button class="btn btn-danger btn-sm" @click="removeTask(index)">Excluir</button>
+            </div>
           </li>
         </ul>
+        
+        <button class="btn btn-secondary btn-sm mt-2" v-if="tasks.length > 0" @click="removeAllTasksInCurrentEdition">
+          Limpar tarefas adicionadas
+        </button>
       </div>
       
       <div class="col-md-6 mt-4 mt-md-0">
@@ -60,12 +88,20 @@
         
         <div class="d-flex align-items-center gap-2 flex-wrap mt-3">
           <button class="btn btn-success" @click="generateTxt" accesskey="g" title="Atalho: letra G" data-tooltip="true" data-bs-placement="top">
-            Gerar Arquivo TXT <kbd class="ms-1">Alt+G</kbd>
+            Gerar Arquivo TXT <kbd class="ms-1 text-small">Alt+G</kbd>
           </button>
           
-          <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#historyModal"
-                  accesskey="h" data-tooltip="true" data-bs-placement="top" title="No Firefox, use Alt + Shift + H">
-            Ver Histórico <kbd class="ms-1">Alt+H</kbd>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-toggle="modal"
+            data-bs-target="#historyModal"
+            accesskey="h"
+            data-tooltip="true"
+            data-bs-placement="top"
+            title="No Firefox, use Alt + Shift + H"
+          >
+            Ver Histórico <kbd class="ms-1 text-small">Alt+H</kbd>
           </button>
         </div>
       </div>
@@ -130,7 +166,20 @@
       </div>
     </div>
   </div>
+  
+  <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;"></div>
 </div>
+
+<template id="toast-template">
+  <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <span class="p-1 rounded-circle bg-success me-2 toast-indicator"></span>
+      <strong class="me-auto">Notificação</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body"></div>
+  </div>
+</template>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
