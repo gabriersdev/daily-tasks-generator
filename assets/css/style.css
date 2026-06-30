@@ -1,0 +1,56 @@
+body {
+    font-family: 'Barlow', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.preview-container {
+    font-family: 'JetBrains Mono', monospace;
+    white-space: pre;
+    text-wrap: wrap;
+    background-color: #e9ecef;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    line-height: 1.5;
+    font-size: 0.9rem;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+.task-item {
+    cursor: grab;
+}
+
+.task-item:active {
+    cursor: grabbing;
+}
+
+.tooltip * {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.tooltip *,
+.text-small,
+.text-sml,
+.small {
+    font-size: 13px !important;
+    text-wrap: balance !important;
+}
+
+.ellipsis {
+    max-width: 150px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+.text-balance {
+    text-wrap: balance !important;
+}
+
+kbd {
+    font-family: 'JetBrains Mono', monospace;
+}
