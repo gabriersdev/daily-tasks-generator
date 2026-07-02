@@ -1,5 +1,10 @@
 const {createApp} = Vue;
 
+const lsKeys = {
+  autosave: 'daily-tasks-autosave',
+  history: 'daily-tasks-history',
+}
+
 const app = createApp({
   data() {
     const tomorrow = new Date();
@@ -85,12 +90,12 @@ const app = createApp({
       if (currentStr === this.lastAutosaveStr) return;
       
       this.lastAutosaveStr = currentStr;
-      localStorage.setItem('daily_tasks_autosave', currentStr);
+      localStorage.setItem(lsKeys.autosave, currentStr);
       this.showToast('Alterações salvas automaticamente.');
     },
     
     loadAutoSave() {
-      const saved = localStorage.getItem('daily_tasks_autosave');
+      const saved = localStorage.getItem(lsKeys.autosave);
       if (saved) {
         try {
           const data = JSON.parse(saved);
@@ -113,7 +118,7 @@ const app = createApp({
     
     formatCase(string) {
       if (!string) return '';
-      return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
+      return string.substring(0, 1).toUpperCase() + string.substring(1);
     },
     
     addTask() {
@@ -172,7 +177,7 @@ const app = createApp({
       };
       
       this.history.push(entry);
-      localStorage.setItem('tasksHistory', JSON.stringify(this.history));
+      localStorage.setItem('tasks-history', JSON.stringify(this.history));
       
       Swal.fire({
         icon: 'success',
@@ -184,7 +189,7 @@ const app = createApp({
     },
     
     loadHistory() {
-      this.history = JSON.parse(localStorage.getItem('tasksHistory')) || [];
+      this.history = JSON.parse(localStorage.getItem(lsKeys.history)) || [];
     },
     
     clearHistory() {
@@ -245,7 +250,7 @@ const app = createApp({
       }).then((result) => {
         if (result.isConfirmed) {
           this.history.splice(index, 1);
-          localStorage.setItem('tasksHistory', JSON.stringify(this.history));
+          localStorage.setItem(lsKeys.history, JSON.stringify(this.history));
           this.loadHistory();
           Swal.fire('Excluído!', 'O item foi excluído do histórico.', 'success');
         }

@@ -55,7 +55,7 @@
             >
           </label>
           <button
-            class="btn btn-primary ms-2 rounded"
+            class="btn btn-primary rounded-1 ms-2 rounded"
             type="submit"
             title="Atalho: Enter a partir do preenchimento do input"
             data-tooltip="true"
@@ -71,14 +71,14 @@
               <span style="text-overflow: ellipsis; max-width: fit-content; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical;">
                 {{ task }}
               </span>
-            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
-              <button class="btn btn-warning btn-sm" @click="editTask(index)">Editar</button>
-              <button class="btn btn-danger btn-sm" @click="removeTask(index)">Excluir</button>
+            <div class="d-flex align-items-center justify-content-center gap-2 flex-nowrap">
+              <button class="btn btn-warning btn-sm rounded-1" @click="editTask(index)">Editar</button>
+              <button class="btn btn-danger btn-sm rounded-1" @click="removeTask(index)">Excluir</button>
             </div>
           </li>
         </ul>
         
-        <button class="btn btn-secondary btn-sm mt-2" v-if="tasks.length > 0" @click="removeAllTasksInCurrentEdition">
+        <button class="btn btn-secondary mt-2 rounded-1" v-if="tasks.length > 0" @click="removeAllTasksInCurrentEdition">
           Limpar tarefas adicionadas
         </button>
       </div>
@@ -88,13 +88,13 @@
         <div class="preview-container">{{ previewContent }}</div>
         
         <div class="d-flex align-items-center gap-2 flex-wrap mt-3">
-          <button class="btn btn-success" @click="generateTxt" accesskey="g" title="Atalho: letra G" data-tooltip="true" data-bs-placement="top">
+          <button class="btn btn-success rounded-1" @click="generateTxt" accesskey="g" title="Atalho: letra G" data-tooltip="true" data-bs-placement="top">
             Gerar Arquivo TXT <kbd class="ms-1 text-small">Alt+G</kbd>
           </button>
           
           <button
             type="button"
-            class="btn btn-secondary"
+            class="btn btn-secondary rounded-1"
             data-bs-toggle="modal"
             data-bs-target="#historyModal"
             accesskey="h"
@@ -115,7 +115,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="historyModalLabel">Histórico de Tarefas</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close btn rounded-1" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         
         <div class="modal-body">
@@ -155,11 +155,11 @@
         </div>
         
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger flex-grow-1 flex-shrink-1" @click="clearHistory" accesskey="a"
+          <button type="button" class="btn btn-danger rounded-1 flex-grow-1 flex-shrink-1" @click="clearHistory" accesskey="a"
                   data-tooltip="true" data-bs-placement="top" title="No Firefox, use Alt + Shift + A">
             Apagar dados armazenados <kbd class="ms-1">Alt+A</kbd>
           </button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" accesskey="c"
+          <button type="button" class="btn btn-secondary rounded-1" data-bs-dismiss="modal" accesskey="c"
                   data-tooltip="true" data-bs-placement="top" title="No Firefox, use Alt + Shift + C" tabindex="-1">
             Fechar <kbd class="ms-1">Alt+C</kbd>
           </button>
@@ -176,7 +176,7 @@
     <div class="toast-header">
       <span class="p-1 rounded-circle bg-success me-2 toast-indicator"></span>
       <strong class="me-auto">Notificação</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      <button type="button" class="btn-close btn rounded-1" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     <div class="toast-body"></div>
   </div>
