@@ -177,7 +177,7 @@ const app = createApp({
       };
       
       this.history.push(entry);
-      localStorage.setItem('tasks-history', JSON.stringify(this.history));
+      localStorage.setItem(lsKeys.history, JSON.stringify(this.history));
       
       Swal.fire({
         icon: 'success',
@@ -204,7 +204,7 @@ const app = createApp({
         cancelButtonText: 'Cancelar'
       }).then((result) => {
         if (result.isConfirmed) {
-          localStorage.removeItem('tasksHistory');
+          localStorage.removeItem(lsKeys.history);
           this.loadHistory();
           Swal.fire('Apagado!', 'O histórico foi apagado.', 'success');
         }
@@ -261,11 +261,116 @@ const app = createApp({
       if (!date) return '';
       const [year, month, day] = date.split('-');
       return `${day}/${month}/${year}`;
+    },
+
+    generateConfigLink(index) {
+      const entry = this.history[index];
+      const paramObj = {
+        tasks: entry.tasks,
+        infos: [entry.date]
+      };
+      
+      const paramString = JSON.stringify(paramObj);
+      const c = btoa(unescape(encodeURIComponent(paramString)));
+      const baseUrl = window.location.href.split('?')[0];
+      return baseUrl + '?c=' + c;
+    },
+    
+    shareLink(index) {
+      const link = this.generateConfigLink(index);
+      
+      // Fallback para ambientes sem HTTPS (onde navigator.clipboard pode não estar disponível)
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(link).then(() => {
+          this.showToast('Link copiado para a área de transferência!');
+        }).catch(err => {
+          console.error('Erro ao copiar link', err);
+          this.fallbackCopyTextToClipboard(link);
+        });
+      } else {
+        this.fallbackCopyTextToClipboard(link);
+      }
+    },
+
+    fallbackCopyTextToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      
+      // Evita rolar a página
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.position = "fixed";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          this.showToast('Link copiado para a área de transferência!');
+        } else {
+          this.showToast('Não foi possível copiar o link.');
+        }
+      } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+        this.showToast('Erro ao copiar o link.');
+      }
+
+      document.body.removeChild(textArea);
+    },
+    
+    shareQrCode(index) {
+      const link = this.generateConfigLink(index);
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}`;
+      Swal.fire({
+        title: 'Compartilhar por QR Code',
+        text: 'Escaneie o código abaixo para acessar:',
+        imageUrl: qrUrl,
+        imageWidth: 200,
+        imageHeight: 200,
+        imageAlt: 'QR Code',
+        confirmButtonText: 'Fechar'
+      });
     }
   },
   
   mounted() {
-    this.loadAutoSave();
+    let importedFromUrl = false;
+    const urlParams = new URLSearchParams(window.location.search);
+    const cParam = urlParams.get('c');
+    
+    if (cParam) {
+      try {
+        const decodedStr = decodeURIComponent(escape(atob(cParam)));
+        const data = JSON.parse(decodedStr);
+        if (data && Array.isArray(data.tasks) && Array.isArray(data.infos) && data.infos.length > 0) {
+          this.isRestoring = true;
+          this.taskDate = data.infos[0];
+          this.tasks = data.tasks;
+          
+          try {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch(err) {
+            console.warn('replaceState not supported here', err);
+          }
+          
+          this.$nextTick(() => {
+            this.isRestoring = false;
+            this.showToast('Tarefas importadas do link com sucesso!', true);
+          });
+          importedFromUrl = true;
+        }
+      } catch (e) {
+        console.error('Erro ao ler o parâmetro c:', e);
+        this.showToast('Erro ao importar tarefas do link.');
+      }
+    }
+
+    if (!importedFromUrl) {
+      this.loadAutoSave();
+    }
+    
     this.loadHistory();
     this.historyModal = new bootstrap.Modal(document.getElementById('historyModal'));
     
