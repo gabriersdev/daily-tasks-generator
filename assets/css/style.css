@@ -54,3 +54,7 @@ body {
 kbd {
     font-family: 'JetBrains Mono', monospace;
 }
+
+.toast {
+    box-shadow: none;
+}
