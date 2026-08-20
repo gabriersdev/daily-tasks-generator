@@ -167,7 +167,13 @@ const app = createApp({
       anchor.click();
       document.body.removeChild(anchor);
       
-      this.saveToHistory();
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso',
+        text: 'Arquivo TXT gerado com sucesso!',
+        timer: 1500,
+        showConfirmButton: false
+      });
     },
     
     saveToHistory() {
@@ -178,11 +184,51 @@ const app = createApp({
       
       this.history.push(entry);
       localStorage.setItem(lsKeys.history, JSON.stringify(this.history));
+    },
+    
+    saveToHistoryManual() {
+      if (this.tasks.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Lista Vazia',
+          text: 'Adicione pelo menos uma tarefa antes de salvar no histórico.',
+          confirmButtonColor: '#0d6efd'
+        });
+        return;
+      }
       
+      const hasDuplicate = this.history.some(item => item.date === this.taskDate);
+      
+      if (hasDuplicate) {
+        Swal.fire({
+          title: 'Data já existe no histórico',
+          text: 'Já existe um registro para esta data. Deseja salvar mesmo assim?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#0d6efd',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Sim, salvar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.saveToHistory();
+            Swal.fire({
+              icon: 'success',
+              title: 'Salvo!',
+              text: 'Tarefas salvas no histórico com sucesso!',
+              timer: 1500,
+              showConfirmButton: false
+            });
+          }
+        });
+        return;
+      }
+      
+      this.saveToHistory();
       Swal.fire({
         icon: 'success',
-        title: 'Sucesso',
-        text: 'Arquivo gerado e salvo no histórico!',
+        title: 'Salvo!',
+        text: 'Tarefas salvas no histórico com sucesso!',
         timer: 1500,
         showConfirmButton: false
       });
